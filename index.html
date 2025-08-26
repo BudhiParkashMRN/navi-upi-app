@@ -496,8 +496,21 @@ function hideModal() {
   videoPlayer.currentTime = 0;
 }
       
+function isRectCentered(outerRect, innerRect) {
+  // Get center of QR image
+  const innerCenterX = innerRect.left + innerRect.width / 1;
+  const innerCenterY = innerRect.top + innerRect.height / 2;
+
+  // Check if QR center lies inside the target box
+  return (
+    innerCenterX >= outerRect.left &&
+    innerCenterX <= outerRect.right &&
+    innerCenterY >= outerRect.top &&
+    innerCenterY <= outerRect.bottom
+  );
+}
       function isRectInside(outerRect, innerRect) {
-        const tolerance = 2;
+        const tolerance = 25;
         return (
           innerRect.top >= outerRect.top - tolerance &&
           innerRect.left >= outerRect.left - tolerance &&
@@ -525,6 +538,7 @@ function hideModal() {
         codeDisplayImage.style.transform = `translateY(${parallaxY}px)`;
         const codeDisplayRect = codeDisplayImage.getBoundingClientRect();
         const targetRect = qrTargetArea.getBoundingClientRect();
+        //const isAligned = isRectInside(targetRect, codeDisplayRect);
         const isAligned = isRectInside(targetRect, codeDisplayRect);
         if (isAligned) {
           if (!qrCodeVisualWrapper.classList.contains("green-border")) {
