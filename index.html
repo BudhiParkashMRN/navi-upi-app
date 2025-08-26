@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Blog Post with Navi Ad</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
       /* Custom styles for the scanner animation and modal */
@@ -34,7 +33,7 @@
         margin-bottom: 50vh;
       }
       .qr-code-wrapper {
-        position: absolute;
+        position: relative; /* Added for correct coin burst positioning */
         top: 115px;
         left: 190px;
         width: 80px;
@@ -109,7 +108,9 @@
         z-index: 30;
       }
       .burst-coin {
-        position: absolute;
+        position: absolute; /* Changed to absolute to be relative to .qr-code-wrapper */
+        top: 50%;
+        left: 50%;
         font-size: 1.5rem;
         opacity: 0;
         user-select: none;
@@ -118,13 +119,11 @@
       }
       @keyframes burst-fly {
         0% {
-          transform: scale(0.5);
+          transform: translate(-50%, -50%) scale(0.5); /* Center initial position */
           opacity: 0.8;
-          top: var(--start-y);
-          left: var(--start-x);
         }
         100% {
-          transform: translate(var(--end-x, 0), var(--end-y, -100px)) scale(0);
+          transform: translate(calc(-50% + var(--end-x, 0)), calc(-50% + var(--end-y, -100px))) scale(0); /* Center final position */
           opacity: 0;
         }
       }
@@ -244,6 +243,30 @@
             consumer preferences. From traditional banking to the advent of
             digital wallets and instant payment systems, the journey has been
             nothing short of revolutionary. India, in particular, has emerged as
+            a global leader in this space, with its Unified Payments Interface
+            (UPI) setting new benchmarks for real-time transactions.
+          </p>
+          <p class="mb-4">
+            The landscape of financial transactions is undergoing a rapid
+            transformation, driven by technological advancements and shifting
+            consumer preferences. From traditional banking to the advent of
+            digital wallets and instant payment systems, the journey has been
+            nothing short of revolutionary. India, in particular, has emerged as
+            a global leader in this space, with its Unified Payments Interface
+            (UPI) setting new benchmarks for real-time transactions.
+            India, in particular, has emerged as
+            a global leader in this space, with its Unified Payments Interface
+            (UPI) setting new benchmarks for real-time transactions.
+          </p>
+          <p class="mb-4">
+            The landscape of financial transactions is undergoing a rapid
+            transformation, driven by technological advancements and shifting
+            consumer preferences. From traditional banking to the advent of
+            digital wallets and instant payment systems, the journey has been
+            nothing short of revolutionary. India, in particular, has emerged as
+            a global leader in this space, with its Unified Payments Interface
+            (UPI) setting new benchmarks for real-time transactions.
+            India, in particular, has emerged as
             a global leader in this space, with its Unified Payments Interface
             (UPI) setting new benchmarks for real-time transactions.
           </p>
@@ -371,7 +394,7 @@
         <div class="modal-header">
           <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Navi_New_Logo.png/1200px-Navi_New_Logo.png" alt="Navi Logo" />
         </div>
-        <video id="video-player" width="280" height="157" autoplay loop>
+        <video id="video-player" width="280" height="157" controls>
           <source src="https://carzonwheeldb.s3.ap-south-1.amazonaws.com/ssvid.net--Navi-Surprisingly-Fast-Growth-Barber_v720P.mp4" type="video/mp4">
           Your browser does not support the video tag.
         </video>
@@ -409,21 +432,16 @@
         "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/QR_code_for_mobile_English_Wikipedia.svg/800px-QR_code_for_mobile_English_Wikipedia.svg.png";
       const PARALLAX_SPEED = 0.3;
 
-      // Sound control based on modal state
-      videoPlayer.muted = false; // Start muted
-      function updateSound() {
-        videoPlayer.muted = !fullScreenModal.classList.contains("show");
-      }
-
       function showModal() {
         fullScreenModal.classList.add("show");
-        updateSound(); // Unmute when modal opens
+        videoPlayer.play();
       }
       function hideModal() {
         fullScreenModal.classList.remove("show");
-        updateSound(); // Mute when modal closes
+        videoPlayer.pause();
+        videoPlayer.currentTime = 0;
       }
-
+      
       function isRectInside(outerRect, innerRect) {
         const tolerance = 2;
         return (
@@ -486,17 +504,12 @@
       }
       function burstCoins() {
         const numCoins = 10;
-        const qrWrapperRect = qrCodeVisualWrapper.getBoundingClientRect();
         const adContainerRect = adTrigger.getBoundingClientRect();
-        const startX_relativeToAd = qrWrapperRect.left + qrWrapperRect.width / 2 - adContainerRect.left;
-        const startY_relativeToAd = qrWrapperRect.top + qrWrapperRect.height / 2 - adContainerRect.top;
         for (let i = 0; i < numCoins; i++) {
           const coin = document.createElement("div");
           coin.textContent = "🪙";
           coin.classList.add("burst-coin");
-          adTrigger.appendChild(coin);
-          coin.style.left = `${startX_relativeToAd}px`;
-          coin.style.top = `${startY_relativeToAd}px`;
+          qrCodeVisualWrapper.appendChild(coin);
           const angle = Math.random() * Math.PI * 2;
           const maxDistance = Math.min(adContainerRect.width, adContainerRect.height) / 1.5;
           const minDistance = 50;
