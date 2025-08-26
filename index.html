@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blog Post with Navi Ad</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      /* Custom styles for the scanner animation and modal */
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+        height: 200vh;
+      }
+      .navi-ad-container {
+        position: relative;
+        background-image: url("https://img.carzonwheel.com/public/navi-upi-1756187008300.jpg");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        width: 300px;
+        height: 250px;
+        padding: 0;
+        border-radius: 1rem;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+        margin-top: 50vh;
+        margin-bottom: 50vh;
+      }
+      .qr-code-wrapper {
+        position: absolute;
+        top: 115px;
+        left: 190px;
+        width: 80px;
+        height: 90px;
+        border: 4px solid red;
+        border-radius: 0.5rem;
+        overflow: hidden;
+        transition: border-color 0.3s ease;
+        z-index: 10;
+      }
+      .qr-target-area {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 5;
+      }
+      .qr-code-wrapper.red-border {
+        border-color: #ef4444;
+      }
+      .qr-code-wrapper.green-border {
+        border-color: #34d399;
+      }
+      .code-display-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        transition: opacity 0.5s ease-in-out, transform 0.1s linear;
+      }
+      .qr-code-scanner {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 5px;
+        background: linear-gradient(to right, transparent, #34d399, transparent);
+        opacity: 0;
+        transition: opacity 0.3s ease-in-out;
+        z-index: 20;
+      }
+      .scanner-active .qr-code-scanner {
+        opacity: 1;
+        animation: scan 2s infinite linear;
+      }
+      @keyframes scan {
+        0% {
+          transform: translateY(0%);
+        }
+        50% {
+          transform: translateY(calc(70px - 5px));
+        }
+        100% {
+          transform: translateY(0%);
+        }
+      }
+      .payment-successful-message {
+        position: absolute;
+        top: 200px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 120px;
+        text-align: center;
+        color: #34d399;
+        font-weight: bold;
+        font-size: 0.8rem;
+        opacity: 0;
+        transition: opacity 0.5s ease-in-out;
+        z-index: 30;
+      }
+      .burst-coin {
+        position: absolute;
+        font-size: 1.5rem;
+        opacity: 0;
+        user-select: none;
+        pointer-events: none;
+        z-index: 35;
+      }
+      @keyframes burst-fly {
+        0% {
+          transform: scale(0.5);
+          opacity: 0.8;
+          top: var(--start-y);
+          left: var(--start-x);
+        }
+        100% {
+          transform: translate(var(--end-x, 0), var(--end-y, -100px)) scale(0);
+          opacity: 0;
+        }
+      }
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(5px);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        visibility: hidden;
+        opacity: 0;
+        transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+        transform: scale(0.8);
+      }
+      .modal-overlay.show {
+        visibility: visible;
+        opacity: 1;
+        transform: scale(1);
+      }
+      .modal-content {
+        position: relative;
+        background-color: rgba(255, 255, 255, 0.9);
+        border-radius: 1rem;
+        overflow: hidden;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        text-align: center;
+        padding: 10px;
+        width: 280px;
+        height: 550px;
+      }
+      .modal-content video {
+        width: 280px;
+        height: 157px;
+        border: none;
+      }
+      .modal-content img {
+        width: 280px;
+        height: 380px;
+        object-fit: cover;
+        display: block;
+      }
+      .modal-header {
+        background-color: transparent;
+        padding: 5px;
+        font-size: 1.5rem;
+        font-weight: bold;
+      }
+      .modal-header img {
+        max-width: 100px;
+        height: auto;
+      }
+      .know-more-btn {
+        background-color: #4caf50;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        font-size: 1rem;
+        margin-top: 10px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+      .know-more-btn:hover {
+        background-color: #45a049;
+      }
+      .close-button {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-size: 2rem;
+        cursor: pointer;
+        color: #333;
+        background-color: white;
+        border-radius: 50%;
+        width: 2.5rem;
+        height: 2.5rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: background-color 0.2s;
+      }
+      .close-button:hover {
+        background-color: #eee;
+      }
+      @media (min-width: 768px) {
+        .modal-content {
+          max-width: 600px;
+        }
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100 text-gray-800">
+    <header class="bg-white shadow p-4 mb-8">
+      <div class="container mx-auto">
+        <h1 class="text-2xl font-bold text-green-700">My Awesome Blog</h1>
+      </div>
+    </header>
+    <main class="container mx-auto px-4 py-8 md:flex md:space-x-8">
+      <div class="md:w-2/3 bg-white p-6 rounded-xl shadow-lg mb-8 md:mb-0">
+        <h2 class="text-3xl font-bold text-gray-900 mb-4">
+          Understanding the Future of Digital Payments
+        </h2>
+        <p class="text-gray-600 mb-6">
+          Published on August 25, 2025 by Tech Enthusiast
+        </p>
+        <div class="prose max-w-none">
+          <p class="mb-4">
+            The landscape of financial transactions is undergoing a rapid
+            transformation, driven by technological advancements and shifting
+            consumer preferences. From traditional banking to the advent of
+            digital wallets and instant payment systems, the journey has been
+            nothing short of revolutionary. India, in particular, has emerged as
+            a global leader in this space, with its Unified Payments Interface
+            (UPI) setting new benchmarks for real-time transactions.
+          </p>
+        </div>
+        <div id="navi-ad-trigger" class="navi-ad-container my-12">
+          <div id="qr-code-visual-wrapper" class="qr-code-wrapper">
+            <div id="qr-target-area" class="qr-target-area"></div>
+            <img
+              id="code-display-image"
+              src="https://placehold.co/70x70/cccccc/333333?text=BARCODE"
+              alt="Barcode or QR Code"
+              class="code-display-image rounded-sm"
+            />
+            <div class="qr-code-scanner"></div>
+          </div>
+          <div
+            id="payment-successful-message"
+            class="payment-successful-message"
+          >
+            Payment Successful!
+          </div>
+        </div>
+        <div class="prose max-w-none">
+          <p class="mb-4">
+            The continued success of UPI and other digital payment platforms
+            highlights a global shift towards more efficient and secure
+            financial systems. As technology evolves, so too will the ways we
+            exchange value, making our lives simpler and more connected. Stay
+            tuned for more updates on this exciting journey!
+          </p>
+          <p class="mb-4">
+            *Disclaimer: User numbers are indicative and based on market
+            reports. Actual figures may vary.
+          </p>
+        </div>
+        <div class="prose max-w-none">
+          <p class="mb-4">
+            The landscape of financial transactions is undergoing a rapid
+            transformation, driven by technological advancements and shifting
+            consumer preferences. From traditional banking to the advent of
+            digital wallets and instant payment systems, the journey has been
+            nothing short of revolutionary. India, in particular, has emerged as
+            a global leader in this space, with its Unified Payments Interface
+            (UPI) setting new benchmarks for real-time transactions.
+          </p>
+          <p class="mb-4">
+            UPI, launched by the National Payments Corporation of India (NPCI),
+            has democratized digital payments, making them accessible to
+            millions across the country. Its interoperable nature, ease of use,
+            and robust security features have made it a preferred choice for
+            everything from daily grocery shopping to large online purchases.
+            The sheer volume of transactions processed daily through UPI is a
+            testament to its widespread adoption and success.
+          </p>
+          <p class="mb-4">
+            This growth is not just about convenience; it's about financial
+            inclusion. UPI has empowered individuals, especially in rural and
+            semi-urban areas, to participate in the digital economy without the
+            need for complex banking infrastructure. The simplicity of scanning
+            a QR code or entering a mobile number has replaced the need for cash
+            in countless scenarios, leading to a more transparent and efficient
+            economy.
+          </p>
+          <p class="mb-4">
+            As we look ahead, the evolution of digital payments will continue to
+            accelerate. Innovations like voice-activated payments,
+            blockchain-based solutions, and enhanced security protocols are
+            constantly being developed. The focus remains on creating seamless,
+            secure, and user-friendly payment experiences that cater to the
+            diverse needs of a global population. The journey towards a truly
+            cashless society, while challenging, is undeniably underway, and
+            platforms like UPI are at the forefront of this exciting
+            transformation.
+          </p>
+          <p class="mb-4">
+            Furthermore, the impact of such systems extends beyond individual
+            transactions. They contribute to a more formalized economy, reduce
+            the costs associated with handling cash, and provide valuable data
+            insights for economic planning and development. The ripple effects
+            are felt across various sectors, from small businesses enjoying
+            faster settlements to governments improving tax collection
+            efficiency. The future promises even more integration of payments
+            into daily life, making financial interactions almost invisible and
+            effortless.
+          </p>
+        </div>
+      </div>
+      <aside class="md:w-1/3 bg-white p-6 rounded-xl shadow-lg">
+        <h3 class="text-2xl font-bold text-gray-900 mb-4">Related Articles</h3>
+        <ul class="space-y-4">
+          <li>
+            <a
+              href="#"
+              class="text-blue-600 hover:text-blue-800 transition duration-200"
+              >The Rise of Fintech Startups in India</a
+            >
+          </li>
+          <li>
+            <a
+              href="#"
+              class="text-blue-600 hover:text-blue-800 transition duration-200"
+              >Security Best Practices for Online Payments</a
+            >
+          </li>
+          <li>
+            <a
+              href="#"
+              class="text-blue-600 hover:text-blue-800 transition duration-200"
+              >How AI is Reshaping Banking Services</a
+            >
+          </li>
+          <li>
+            <a
+              href="#"
+              class="text-blue-600 hover:text-blue-800 transition duration-200"
+              >Global Trends in Mobile Wallets Adoption</a
+            >
+          </li>
+        </ul>
+      </aside>
+    </main>
+    <div id="full-screen-modal" class="modal-overlay">
+      <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <div class="modal-header">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Navi_New_Logo.png/1200px-Navi_New_Logo.png" alt="Navi Logo" />
+        </div>
+        <video id="video-player" width="280" height="157" autoplay loop>
+          <source src="https://carzonwheeldb.s3.ap-south-1.amazonaws.com/ssvid.net--Navi-Surprisingly-Fast-Growth-Barber_v720P.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+        <img
+          src="https://img.carzonwheel.com/public/navi-gif-1756186124340.gif"
+          alt="Navi Ad GIF"
+        />
+        <button class="know-more-btn">KNOW MORE</button>
+      </div>
+    </div>
+    <script>
+      const adTrigger = document.getElementById("navi-ad-trigger");
+      const qrCodeVisualWrapper = document.getElementById(
+        "qr-code-visual-wrapper"
+      );
+      const codeDisplayImage = document.getElementById("code-display-image");
+      const qrCodeScanner =
+        qrCodeVisualWrapper.querySelector(".qr-code-scanner");
+      const paymentSuccessfulMessage = document.getElementById(
+        "payment-successful-message"
+      );
+      const qrTargetArea = document.getElementById("qr-target-area");
+      const fullScreenModal = document.getElementById("full-screen-modal");
+      const closeModalButton = fullScreenModal.querySelector(".close-button");
+      const videoPlayer = document.getElementById("video-player");
+      let scannerAnimationTimeout;
+      let paymentAnimationTimeout;
+      let modalTriggerTimeout;
+      let animationFrameId;
+      let animationsTriggered = false;
+      const INITIAL_CODE_TOP_OFFSET_RELATIVE = -50;
+      const BARCODE_URL =
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/QR_code_for_mobile_English_Wikipedia.svg/800px-QR_code_for_mobile_English_Wikipedia.svg.png";
+      const QRCODE_URL =
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/QR_code_for_mobile_English_Wikipedia.svg/800px-QR_code_for_mobile_English_Wikipedia.svg.png";
+      const PARALLAX_SPEED = 0.3;
+
+      // Sound control based on modal state
+      videoPlayer.muted = false; // Start muted
+      function updateSound() {
+        videoPlayer.muted = !fullScreenModal.classList.contains("show");
+      }
+
+      function showModal() {
+        fullScreenModal.classList.add("show");
+        updateSound(); // Unmute when modal opens
+      }
+      function hideModal() {
+        fullScreenModal.classList.remove("show");
+        updateSound(); // Mute when modal closes
+      }
+
+      function isRectInside(outerRect, innerRect) {
+        const tolerance = 2;
+        return (
+          innerRect.top >= outerRect.top - tolerance &&
+          innerRect.left >= outerRect.left - tolerance &&
+          innerRect.bottom <= outerRect.bottom + tolerance &&
+          innerRect.right <= outerRect.right + tolerance
+        );
+      }
+      function handleParallaxScroll() {
+        const scrollY = window.scrollY;
+        const adRect = adTrigger.getBoundingClientRect();
+        const qrWrapperRect = qrCodeVisualWrapper.getBoundingClientRect();
+        const adJourneyStart = adTrigger.offsetTop - window.innerHeight;
+        const adJourneyEnd = adTrigger.offsetTop + adRect.height;
+        const adScrollProgress = Math.max(
+          0,
+          Math.min(
+            1,
+            (scrollY - adJourneyStart) / (adJourneyEnd - adJourneyStart)
+          )
+        );
+        const totalCodeMovementRange = qrWrapperRect.height * 2;
+        const parallaxY =
+          INITIAL_CODE_TOP_OFFSET_RELATIVE +
+          adScrollProgress * totalCodeMovementRange;
+        codeDisplayImage.style.transform = `translateY(${parallaxY}px)`;
+        const codeDisplayRect = codeDisplayImage.getBoundingClientRect();
+        const targetRect = qrTargetArea.getBoundingClientRect();
+        const isAligned = isRectInside(targetRect, codeDisplayRect);
+        if (isAligned) {
+          if (!qrCodeVisualWrapper.classList.contains("green-border")) {
+            qrCodeVisualWrapper.classList.remove("red-border");
+            qrCodeVisualWrapper.classList.add("green-border");
+          }
+          if (!animationsTriggered) {
+            animationsTriggered = true;
+            codeDisplayImage.src = QRCODE_URL;
+            qrCodeScanner.parentElement.classList.add("scanner-active");
+            paymentAnimationTimeout = setTimeout(() => {
+              burstCoins();
+              paymentSuccessfulMessage.style.opacity = "1";
+            }, 1500);
+            modalTriggerTimeout = setTimeout(() => {
+              showModal();
+            }, 2000);
+          }
+        } else {
+          if (!qrCodeVisualWrapper.classList.contains("red-border")) {
+            qrCodeVisualWrapper.classList.remove("green-border");
+            qrCodeVisualWrapper.classList.add("red-border");
+          }
+          if (animationsTriggered) {
+            resetAnimationStages();
+            animationsTriggered = false;
+            codeDisplayImage.src = BARCODE_URL;
+          }
+        }
+        animationFrameId = requestAnimationFrame(handleParallaxScroll);
+      }
+      function burstCoins() {
+        const numCoins = 10;
+        const qrWrapperRect = qrCodeVisualWrapper.getBoundingClientRect();
+        const adContainerRect = adTrigger.getBoundingClientRect();
+        const startX_relativeToAd = qrWrapperRect.left + qrWrapperRect.width / 2 - adContainerRect.left;
+        const startY_relativeToAd = qrWrapperRect.top + qrWrapperRect.height / 2 - adContainerRect.top;
+        for (let i = 0; i < numCoins; i++) {
+          const coin = document.createElement("div");
+          coin.textContent = "🪙";
+          coin.classList.add("burst-coin");
+          adTrigger.appendChild(coin);
+          coin.style.left = `${startX_relativeToAd}px`;
+          coin.style.top = `${startY_relativeToAd}px`;
+          const angle = Math.random() * Math.PI * 2;
+          const maxDistance = Math.min(adContainerRect.width, adContainerRect.height) / 1.5;
+          const minDistance = 50;
+          const distance = Math.random() * (maxDistance - minDistance) + minDistance;
+          const endX = distance * Math.cos(angle);
+          const endY = distance * Math.sin(angle);
+          coin.style.setProperty("--end-x", `${endX}px`);
+          coin.style.setProperty("--end-y", `${endY}px`);
+          coin.style.animationDelay = `${Math.random() * 0.2}s`;
+          coin.style.animation = `burst-fly 1s forwards ease-out`;
+          coin.addEventListener("animationend", () => {
+            coin.remove();
+          });
+        }
+      }
+      function resetAnimationStages() {
+        clearTimeout(scannerAnimationTimeout);
+        clearTimeout(paymentAnimationTimeout);
+        clearTimeout(modalTriggerTimeout);
+        qrCodeScanner.parentElement.classList.remove("scanner-active");
+        document
+          .querySelectorAll(".burst-coin")
+          .forEach((coin) => coin.remove());
+        paymentSuccessfulMessage.style.opacity = "0";
+        hideModal();
+      }
+      function resetAdCreative() {
+        resetAnimationStages();
+        cancelAnimationFrame(animationFrameId);
+        qrCodeVisualWrapper.classList.remove("green-border");
+        qrCodeVisualWrapper.classList.add("red-border");
+        codeDisplayImage.style.transform = `translateY(${INITIAL_CODE_TOP_OFFSET_RELATIVE}px)`;
+        codeDisplayImage.src = BARCODE_URL;
+        animationsTriggered = false;
+      }
+      const adVisibilityObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              resetAdCreative();
+              animationFrameId = requestAnimationFrame(handleParallaxScroll);
+            } else {
+              resetAdCreative();
+            }
+          });
+        },
+        {
+          root: null,
+          rootMargin: "0px",
+          threshold: 0,
+        }
+      );
+      adVisibilityObserver.observe(adTrigger);
+      closeModalButton.addEventListener("click", hideModal);
+      fullScreenModal.addEventListener("click", (event) => {
+        if (event.target === fullScreenModal) {
+          hideModal();
+        }
+      });
+    </script>
+  </body>
+</html>
