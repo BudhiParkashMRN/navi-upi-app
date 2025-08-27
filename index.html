@@ -181,7 +181,46 @@
         max-width: 100px;
         height: auto;
       }
+ 
+
       .know-more-btn {
+        margin-top: 5px;
+  display: inline-block;
+  padding: 6px 10px;
+  background: #3c004f;
+  color: white;
+  border-radius: 6px;
+        font-size: 0.6rem;
+  border: none;
+  cursor: pointer;
+  animation: bounceScale 2s infinite ease-in-out;
+  transform-origin: center;
+}
+
+@keyframes bounceScale {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  }
+  30% {
+    transform: scale(1.15); /* pop out */
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+  }
+  50% {
+    transform: scale(0.95); /* slight shrink */
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+  }
+  70% {
+    transform: scale(1.08); /* bounce back */
+    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.2);
+  }
+}
+
+
+.know-more-btn:hover {
+  background: #34d399;
+}
+      /* .know-more-btn {
         background-color: #3c004f;
         color: white;
         padding: 5px;
@@ -191,10 +230,8 @@
         margin-top: 6px;
         cursor: pointer;
         transition: background-color 0.3s;
-      }
-      .know-more-btn:hover {
-        background-color: #45a049;
-      }
+        animation: scale-drop 0.6s ease-out forwards;
+      } */
       .close-button {
         position: absolute;
         top: 6px;
@@ -404,7 +441,10 @@
           src="https://img.carzonwheel.com/public/navi-barber-1756194230114.gif"
           alt="Navi Ad GIF"
         />
-        <button class="know-more-btn">KNOW MORE</button>
+        <a href="https://play.google.com/store/apps/details?id=com.naviapp&hl=en_IN&gl=IN" target="blank">
+          <button class="know-more-btn bounce-flicker">Install Now</button>
+        </a>
+       
         <div class="absolute top-[26%] right-1 z-50">
           <button id="sound-toggle" 
                   class="bg-black bg-opacity-50 text-white rounded-full p-2 shadow-md hover:bg-opacity-70 transition">
